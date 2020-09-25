@@ -21,6 +21,12 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  avatar_glow: ^1.2.0
+  firebase:
+  firebase_storage:
+  firebase_auth:
+  cloud_firestore:
+  image_picker: ^0.6.5+2
   path_provider: ^1.4.0
   curved_navigation_bar: ^0.3.3
   flutter:

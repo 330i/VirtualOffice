@@ -1,231 +1,154 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:virtualoffice/utils/request_convert.dart';
-import 'package:virtualoffice/widgets/bottom_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:virtualoffice/screens/sign_up.dart';
-import 'package:http/http.dart' as http;
+import 'package:virtualoffice/screens/home_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class LoginPage extends StatefulWidget {
-  LoginPage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
+class LoginScreen extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-
-  TextEditingController email = new TextEditingController();
-  TextEditingController password = new TextEditingController();
-
-  String baseaddr ;
+class _LoginScreenState extends State<LoginScreen> {
+  int pageIndex = 0;
+  TextEditingController emailInputController;
+  TextEditingController passwordInputController;
+  final GlobalKey<FormState> _loginFormKey = new GlobalKey();
 
   @override
-  void initState(){
-    super.initState();
-    getIP();
+  void initState() {
+    emailInputController = new TextEditingController();
+    passwordInputController = new TextEditingController();
   }
 
-  Future getIP()async{
-
-    try {
-      final Directory directory = await getApplicationDocumentsDirectory();
-      final File file = File('${directory.path}/ip.txt');
-      String temp = await file.readAsString();
-      setState(() {
-        baseaddr = temp;
-      });
-      print(temp);
-    } catch (e) {
-      print("Couldn't read file");
+  String emailValidator(String value) {
+    Pattern pattern =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+    RegExp regex = new RegExp(pattern);
+    if (!regex.hasMatch(value)) {
+      return 'Email format is invalid';
+    } else {
+      return null;
     }
   }
 
-
-  Future authenticate(BuildContext context) async{
-    var h = await http.get(baseaddr+"users/byname/"+email.text.toString());
-    if (json.decode(RequestConvert.convertFrom(h.body))["password"]==password.text.toString()){
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => BottomBar()),
-      );
-    }
-  }
-
-  Widget _backButton() {
-    return InkWell(
-      onTap: () {
-        Navigator.pop(context);
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: Row(
-          children: <Widget>[
-            Container(
-              padding: EdgeInsets.only(left: 0, top: 10, bottom: 10),
-              child: Icon(Icons.keyboard_arrow_left, color: Colors.black),
-            ),
-            Text('Back',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500))
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _entryField(String title, TextEditingController controller, {bool isPassword = false}) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          TextField(
-              controller: controller,
-              obscureText: isPassword,
-              decoration: InputDecoration(
-                  border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
-                  filled: true))
-        ],
-      ),
-    );
-  }
-
-  Widget _submitButton(BuildContext context) {
-    return FlatButton(
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.symmetric(vertical: 15),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(5)),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.grey.shade200,
-                  offset: Offset(2, 4),
-                  blurRadius: 5,
-                  spreadRadius: 2)
-            ],
-            gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [Color.fromRGBO(108, 159, 206, 1), Colors.blueAccent])),
-        child: Text(
-          'Login',
-          style: TextStyle(fontSize: 20, color: Colors.white),
-        ),
-      ),
-      onPressed: () {
-        authenticate(context);
-      },
-    );
-  }
-
-  Widget _createAccountLabel() {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => SignUpPage()));
-      },
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 20),
-        padding: EdgeInsets.all(15),
-        alignment: Alignment.bottomCenter,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Don\'t have an account ?',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            Text(
-              'Register',
-              style: TextStyle(
-                  color: Colors.blue,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _title() {
-    return RichText(
-      textAlign: TextAlign.center,
-      text: TextSpan(
-          text: 'Tide',
-          style: TextStyle(color: Color.fromRGBO(48, 79, 254, 1), fontSize: 30),
-          children: [
-            TextSpan(
-              text: 'Pool',
-              style: TextStyle(color: Color.fromRGBO(128, 214, 255, 1), fontSize: 30),
-            ),
-          ]),
-    );
-  }
-
-  Widget _emailPasswordWidget() {
-    return Column(
-      children: <Widget>[
-        _entryField("Name", email),
-        _entryField("Password", password, isPassword: true),
-      ],
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
-    return Scaffold(
-        body: Container(
-          height: height,
-          child: Stack(
+    return new Scaffold(
+      resizeToAvoidBottomPadding: false,
+      body: Container(
+        color: Colors.white,
+        height: MediaQuery.of(context).size.height,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      SizedBox(height: height * .2),
-                      _title(),
-                      SizedBox(height: 50),
-                      _emailPasswordWidget(),
-                      SizedBox(height: 20),
-                      _submitButton(context),
-                      Container(
-                        padding: EdgeInsets.symmetric(vertical: 10),
-                        alignment: Alignment.centerRight,
-                        child: Text('Forgot Password ?',
-                            style: TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w500)),
-                      ),
-                      SizedBox(height: height * .055),
-                      _createAccountLabel(),
-                    ],
-                  ),
+                child: Stack(
+                  children: <Widget>[
+                    Container(
+                      padding: EdgeInsets.fromLTRB(15.0, 100.0, 0.0, 0.0),
+                      child: Text('Group Chat',
+                          style: TextStyle(
+                              fontSize: 70.0, fontWeight: FontWeight.w300, color: Colors.black)),
+                    ),
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    Container(
+                      padding: EdgeInsets.fromLTRB(16.0, 175.0, 0.0, 0.0),
+                      child: Text('Login',
+                          style: TextStyle(
+                              fontSize: 55.0, fontWeight: FontWeight.bold, color: Colors.black)),
+
+                    ),
+                  ],
                 ),
               ),
-              Positioned(top: 40, left: 0, child: _backButton()),
+              SizedBox(
+                height: 20.0,
+              ),
+              Container(
+                  padding: EdgeInsets.only(top: 35.0, left: 20.0, right: 20.0),
+                  child: Form(
+                    key: _loginFormKey,
+                    child: Column(
+                      children: <Widget>[
+                        TextFormField(
+                          style: TextStyle(
+                              color: Colors.black
+                          ),
+                          controller: emailInputController,
+                          decoration: InputDecoration(
+                              labelText: 'EMAIL',
+                              labelStyle: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey),
+                              focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.blue))),
+                          validator: emailValidator,
+                        ),
+                        SizedBox(height: 20.0),
+                        TextFormField(
+                          style: TextStyle(
+                              color: Colors.black
+                          ),
+                          controller: passwordInputController,
+                          decoration: InputDecoration(
+                              labelText: 'PASSWORD',
+                              labelStyle: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey),
+                              focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.blue))),
+                          obscureText: true,
+                        ),
+                        SizedBox(height: 40.0),
+                        GestureDetector(
+                          onTap: () {
+                            print("LOGIN ATTEMPTED");
+                            if (_loginFormKey.currentState.validate()) {
+                              FirebaseAuth.instance.signInWithEmailAndPassword(email: emailInputController.text, password: passwordInputController.text).then(
+                                      (currentUser) {
+                                    Firestore.instance.collection('users').document(currentUser.user.uid).get().then(
+                                            (value) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => (HomePage())),
+                                          );
+                                        });
+                                  }
+                              );
+                            }
+                          },
+                          child: Container(
+                            height: 50.0,
+                            child: Material(
+                              borderRadius: BorderRadius.circular(25.0),
+                              shadowColor: Colors.blue,
+                              color: Colors.grey,
+                              elevation: 6.0,
+                              child: Center(
+                                child: Text(
+                                  'LOGIN',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Montserrat'),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
             ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

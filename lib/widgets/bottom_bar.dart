@@ -19,8 +19,8 @@ class _BottomBarState extends State<BottomBar> {
     return Scaffold(
         bottomNavigationBar: CurvedNavigationBar(
           height: MediaQuery.of(context).size.height / 13,
-          buttonBackgroundColor: LightColors.kBlue,
-          color: LightColors.kDarkBlue,
+          buttonBackgroundColor: LightColors.kLightBlue,
+          color: LightColors.kBlue,
           backgroundColor: LightColors.kWhite,
           items: <Widget>[
             Icon(Icons.home, size: 30, color: Colors.white,),
