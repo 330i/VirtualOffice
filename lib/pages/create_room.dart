@@ -153,8 +153,10 @@ class _CreateRoomState extends State<CreateRoom> {
                       ),
                       Container(
                         width: MediaQuery.of(context).size.width,
-                        height: 20,
                         child: FlatButton(
+                          child: Container(
+                            height: 50,
+                          ),
                           onPressed: () {
                             showDialog(
                               context: context,
@@ -225,7 +227,7 @@ class _CreateRoomState extends State<CreateRoom> {
                   ),
                   GestureDetector(
                     onTap: () async {
-                      //todo: put room creation stuff
+                      onJoin();
                     },
                     child: Container(
                       height: 50,
@@ -256,19 +258,20 @@ class _CreateRoomState extends State<CreateRoom> {
     );
   }
 
-  String generateRandomString() {
-    var r = Random();
-    return String.fromCharCodes(List.generate(1, (index) => r.nextInt(33) + 89));
-  }
+  String _chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
+  Random _rnd = Random();
+
+  String getRandomString() => String.fromCharCodes(Iterable.generate(
+      1, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
   Future<void> onJoin() async {
     String roomid = DateTime.now().millisecondsSinceEpoch.toString().substring(12,13)
-        +generateRandomString()
+        +getRandomString()
         +DateTime.now().millisecondsSinceEpoch.toString().substring(10,11)
-        +generateRandomString()
+        +getRandomString()
         +DateTime.now().millisecondsSinceEpoch.toString().substring(8,9)
-        +generateRandomString()
-        +generateRandomString();
+        +getRandomString()
+        +getRandomString();
     await FirebaseFirestore.instance
         .collection('rooms')
         .doc()

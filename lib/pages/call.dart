@@ -140,33 +140,37 @@ class _CallPageState extends State<CallPage> {
     switch (views.length) {
       case 1:
         return Container(
-            child: Column(
-          children: <Widget>[_videoView(views[0])],
-        ));
+          child: Column(
+            children: <Widget>[_videoView(views[0])],
+          ),
+        );
       case 2:
         return Container(
-            child: Column(
-          children: <Widget>[
-            _expandedVideoRow([views[0]]),
-            _expandedVideoRow([views[1]])
-          ],
-        ));
+          child: Column(
+            children: <Widget>[
+              _expandedVideoRow([views[0]]),
+              _expandedVideoRow([views[1]])
+            ],
+          ),
+        );
       case 3:
         return Container(
-            child: Column(
-          children: <Widget>[
-            _expandedVideoRow(views.sublist(0, 2)),
-            _expandedVideoRow(views.sublist(2, 3))
-          ],
-        ));
+          child: Column(
+            children: <Widget>[
+              _expandedVideoRow(views.sublist(0, 2)),
+              _expandedVideoRow(views.sublist(2, 3))
+            ],
+          ),
+        );
       case 4:
         return Container(
-            child: Column(
-          children: <Widget>[
-            _expandedVideoRow(views.sublist(0, 2)),
-            _expandedVideoRow(views.sublist(2, 4))
-          ],
-        ));
+          child: Column(
+            children: <Widget>[
+              _expandedVideoRow(views.sublist(0, 2)),
+              _expandedVideoRow(views.sublist(2, 4))
+            ],
+          ),
+        );
       default:
     }
     return Container();
@@ -181,6 +185,23 @@ class _CallPageState extends State<CallPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
+          Container(
+            height: 43,
+          ),
+          RawMaterialButton(
+            onPressed: () {
+              //todo: place message stuff here
+            },
+            child: Icon(
+              Icons.add_comment_rounded,
+              color: Colors.blueAccent,
+              size: 20.0,
+            ),
+            shape: CircleBorder(),
+            fillColor: Colors.white,
+            elevation: 2.0,
+            padding: const EdgeInsets.all(12.0),
+          ),
           RawMaterialButton(
             onPressed: _onToggleMute,
             child: Icon(
@@ -217,17 +238,24 @@ class _CallPageState extends State<CallPage> {
             fillColor: Colors.white,
             padding: const EdgeInsets.all(12.0),
           ),
-          RawMaterialButton(
-            onPressed: _onSwitchCamera,
-            child: Icon(
-              Icons.switch_camera,
-              color: Colors.blueAccent,
-              size: 20.0,
-            ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: Colors.white,
+          Padding(
             padding: const EdgeInsets.all(12.0),
+            child: Container(
+              height: 43,
+              child: FloatingActionButton(
+                onPressed: () {
+                  //todo: place info page here
+                },
+                child: Text(
+                  'i',
+                  style: TextStyle(
+                    color: Colors.blueAccent,
+                    fontSize: 20,
+                  ),
+                ),
+                backgroundColor: Colors.white,
+              ),
+            ),
           ),
         ],
       ),
