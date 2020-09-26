@@ -21,6 +21,9 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  preferences: ^5.2.1
+  dynamic_theme: ^1.0.0
+  validators: ^2.0.1
   avatar_glow: ^1.2.0
   firebase:
   firebase_storage:

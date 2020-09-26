@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:virtualoffice/themes/colors.dart';
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:virtualoffice/screens/preference.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -105,7 +106,9 @@ class _HomePageState extends State<HomePage> {
                   height: 50,
                   child: RaisedButton(
                       color: Colors.lightBlue[100],
-                      onPressed: () {},
+                      onPressed: () {
+                        navigateToSubPage(context);
+                      },
                       child: Text("Make a meeting"),
                       shape: RoundedRectangleBorder(
                         borderRadius: new BorderRadius.circular(30.0),
@@ -117,5 +120,8 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+  Future navigateToSubPage(context) async {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => MyApp()));
   }
 }
