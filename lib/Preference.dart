@@ -1,14 +1,8 @@
-import 'dart:async';
+/*import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:preferences/preferences.dart';
 import 'package:dynamic_theme/dynamic_theme.dart'; // Just for theme example
 import 'package:validators/validators.dart';
-
-main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await PrefService.init(prefix: 'pref_');
-  runApp(MyApp());
-}
 
 class MyApp extends StatelessWidget {
   @override
@@ -19,9 +13,9 @@ class MyApp extends StatelessWidget {
             ThemeData(brightness: brightness, accentColor: Colors.green),
         themedWidgetBuilder: (context, theme) {
           return MaterialApp(
-            title: 'Meeting Preference',
+            title: 'Preferences Demo',
             theme: theme,
-            home: MyHomePage(title: 'Meeting Preference'),
+            home: MyHomePage(title: 'Preferences Demo'),
           );
         });
   }
@@ -52,11 +46,11 @@ class _MyHomePageState extends State<MyHomePage> {
           values: ['Posts', 'Timeline', 'Private Messages'],
         ),
         DropdownPreference<int>(
-          'Max People',
+          'Number of items',
           'items_count',
           defaultVal: 2,
-          displayValues: ['Unlimited', 'Two', 'Three', 'Four', 'Five'],
-          values: [9999, 2, 3, 4, 5],
+          displayValues: ['One', 'Two', 'Three', 'Four'],
+          values: [1, 2, 3, 4],
         ),
         PreferenceTitle('Personalization'),
         RadioPreference(
@@ -82,7 +76,12 @@ class _MyHomePageState extends State<MyHomePage> {
           leading: Icon(Icons.message),
           trailing: Icon(Icons.keyboard_arrow_right),
           page: PreferencePage([
-
+            PreferenceTitle('New Posts'),
+            SwitchPreference(
+              'New Posts from Friends',
+              'notification_newpost_friend',
+              defaultVal: true,
+            ),
             PreferenceTitle('Private Messages'),
             SwitchPreference(
               'Private Messages from Friends',
@@ -126,7 +125,6 @@ class _MyHomePageState extends State<MyHomePage> {
           PrefService.getString('user_description', ignoreCache: true) ?? '',
           style: TextStyle(color: Colors.grey),
         ),
-        /*
         PreferenceDialogLink(
           'Edit description',
           dialog: PreferenceDialog(
@@ -214,11 +212,11 @@ class _MyHomePageState extends State<MyHomePage> {
             'exp_showos',
             desc: 'This option shows the users operating system in his profile',
           )
-        ], '!advanced_enabled'),*/ // Use ! to get reversed boolean values
+        ], '!advanced_enabled'), // Use ! to get reversed boolean values
         PreferenceTitle('Advanced'),
         CheckboxPreference(
-          'Show Names',
-          'names_enabled',
+          'Enable Advanced Features',
+          'advanced_enabled',
           onChange: () {
             setState(() {});
           },
@@ -230,8 +228,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
-
-
-
-
+*/
