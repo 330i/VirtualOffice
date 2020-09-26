@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "695637343810",
+    "firebase_url": "https://virtualoffice-36d78.firebaseio.com",
+    "project_id": "virtualoffice-36d78",
+    "storage_bucket": "virtualoffice-36d78.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:695637343810:android:445c818a2c1fd05d92b7db",
+        "android_client_info": {
+          "package_name": "org.crhsidea.virtualoffice"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "695637343810-lhrrt4sm8151rcel0jkoolc6fv1kb3iq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClmocwjJLrgwQgrhSOhRKluWW7sIoYzKA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "695637343810-lhrrt4sm8151rcel0jkoolc6fv1kb3iq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
