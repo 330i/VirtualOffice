@@ -1,8 +1,9 @@
 import 'dart:math';
 
-import 'package:agora_rtc_engine/rtc_engine.dart';
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:virtualoffice/pages/call.dart';
 import 'package:virtualoffice/utils/style_constants.dart';
 import 'package:flutter_tags/flutter_tags.dart';
@@ -290,6 +291,12 @@ class _CreateRoomState extends State<CreateRoom> {
           role: ClientRole.Broadcaster,
         ),
       ),
+    );
+  }
+
+  Future<void> _handleCameraAndMic() async {
+    await PermissionHandler().requestPermissions(
+      [PermissionGroup.camera, PermissionGroup.microphone],
     );
   }
 }

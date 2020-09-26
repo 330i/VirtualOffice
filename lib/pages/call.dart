@@ -1,8 +1,6 @@
 import 'dart:async';
 
-import 'package:agora_rtc_engine/rtc_engine.dart';
-import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
-import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/settings.dart';
@@ -25,15 +23,15 @@ class _CallPageState extends State<CallPage> {
   final _users = <int>[];
   final _infoStrings = <String>[];
   bool muted = false;
-  RtcEngine _engine;
+  static final _sessions = List<VideoSession>();
 
   @override
   void dispose() {
     // clear users
     _users.clear();
     // destroy sdk
-    _engine.leaveChannel();
-    _engine.destroy();
+    AgoraRtcEngine.leaveChannel();
+    AgoraRtcEngine.destroy();
     super.dispose();
   }
 
@@ -57,66 +55,78 @@ class _CallPageState extends State<CallPage> {
 
     await _initAgoraRtcEngine();
     _addAgoraEventHandlers();
-    await _engine.enableWebSdkInteroperability(true);
+    AgoraRtcEngine.enableWebSdkInteroperability(true);
     VideoEncoderConfiguration configuration = VideoEncoderConfiguration();
-    configuration.dimensions = VideoDimensions(360, 360);
-    await _engine.setVideoEncoderConfiguration(configuration);
-    await _engine.joinChannel('', widget.channelName, null, 0);
+    configuration.dimensions = Size(360, 360);
+    AgoraRtcEngine.setVideoEncoderConfiguration(configuration);
+    AgoraRtcEngine.joinChannel('', widget.channelName, null, 0);
   }
 
   /// Create agora sdk instance and initialize
   Future<void> _initAgoraRtcEngine() async {
-    _engine = await RtcEngine.create(APP_ID);
-    await _engine.enableVideo();
-    await _engine.setChannelProfile(ChannelProfile.LiveBroadcasting);
-    await _engine.setClientRole(widget.role);
+    AgoraRtcEngine.create(APP_ID);
+    AgoraRtcEngine.enableVideo();
+    AgoraRtcEngine.setChannelProfile(ChannelProfile.LiveBroadcasting);
+    AgoraRtcEngine.setClientRole(widget.role);
   }
 
+  final _remoteUsers = List<int>();
   /// Add agora event handlers
   void _addAgoraEventHandlers() {
-    _engine.setEventHandler(RtcEngineEventHandler(error: (code) {
+    AgoraRtcEngine.onJoinChannelSuccess =
+        (String channel, int uid, int elapsed) {
       setState(() {
-        final info = 'onError: $code';
+        String info = 'onJoinChannel: ' + channel + ', uid: ' + uid.toString();
         _infoStrings.add(info);
       });
-    }, joinChannelSuccess: (channel, uid, elapsed) {
-      setState(() {
-        final info = 'onJoinChannel: $channel, uid: $uid';
-        _infoStrings.add(info);
-      });
-    }, leaveChannel: (stats) {
+    };
+
+    AgoraRtcEngine.onLeaveChannel = () {
       setState(() {
         _infoStrings.add('onLeaveChannel');
-        _users.clear();
+        _remoteUsers.clear();
       });
-    }, userJoined: (uid, elapsed) {
+    };
+
+    AgoraRtcEngine.onUserJoined = (int uid, int elapsed) {
       setState(() {
-        final info = 'userJoined: $uid';
+        String info = 'userJoined: ' + uid.toString();
         _infoStrings.add(info);
-        _users.add(uid);
+        _remoteUsers.add(uid);
       });
-    }, userOffline: (uid, elapsed) {
+    };
+
+    AgoraRtcEngine.onUserOffline = (int uid, int reason) {
       setState(() {
-        final info = 'userOffline: $uid';
+        String info = 'userOffline: ' + uid.toString();
         _infoStrings.add(info);
-        _users.remove(uid);
+        _remoteUsers.remove(uid);
       });
-    }, firstRemoteVideoFrame: (uid, width, height, elapsed) {
+    };
+
+    AgoraRtcEngine.onFirstRemoteVideoFrame =
+        (int uid, int width, int height, int elapsed) {
       setState(() {
-        final info = 'firstRemoteVideo: $uid ${width}x $height';
+        String info = 'firstRemoteVideo: ' +
+            uid.toString() +
+            ' ' +
+            width.toString() +
+            'x' +
+            height.toString();
         _infoStrings.add(info);
       });
-    }));
+    };
   }
 
   /// Helper function to get list of native views
+  VideoSession _getVideoSession(int uid) {
+    return _sessions.firstWhere((session) {
+      return session.uid == uid;
+    });
+  }
+
   List<Widget> _getRenderViews() {
-    final List<StatefulWidget> list = [];
-    if (widget.role == ClientRole.Broadcaster) {
-      list.add(RtcLocalView.SurfaceView());
-    }
-    _users.forEach((int uid) => list.add(RtcRemoteView.SurfaceView(uid: uid)));
-    return list;
+    return _sessions.map((session) => session.view).toList();
   }
 
   /// Video view wrapper
@@ -178,7 +188,6 @@ class _CallPageState extends State<CallPage> {
 
   /// Toolbar layout
   Widget _toolbar() {
-    if (widget.role == ClientRole.Audience) return Container();
     return Container(
       alignment: Alignment.bottomCenter,
       padding: const EdgeInsets.symmetric(vertical: 48),
@@ -188,31 +197,39 @@ class _CallPageState extends State<CallPage> {
           Container(
             height: 43,
           ),
-          RawMaterialButton(
-            onPressed: () {
-              //todo: place message stuff here
-            },
-            child: Icon(
-              Icons.add_comment_rounded,
-              color: Colors.blueAccent,
-              size: 20.0,
+          Padding(
+            padding: const EdgeInsets.only(left: 12.0),
+            child: Container(
+              height: 43,
+              child: FloatingActionButton(
+                heroTag: 'btn1',
+                onPressed: () {
+                  //todo: place message stuff here
+                },
+                child: Icon(
+                  Icons.add_comment_rounded,
+                  color: Colors.blueAccent,
+                  size: 20.0,
+                ),
+                backgroundColor: Colors.white,
+              ),
             ),
-            shape: CircleBorder(),
-            fillColor: Colors.white,
-            elevation: 2.0,
-            padding: const EdgeInsets.all(12.0),
           ),
-          RawMaterialButton(
-            onPressed: _onToggleMute,
-            child: Icon(
-              muted ? Icons.mic_off : Icons.mic,
-              color: muted ? Colors.white : Colors.blueAccent,
-              size: 20.0,
+          Padding(
+            padding: const EdgeInsets.only(left: 12.0),
+            child: Container(
+              height: 43,
+              child: FloatingActionButton(
+                heroTag: 'btn2',
+                onPressed: _onToggleMute,
+                child: Icon(
+                  muted ? Icons.mic_off : Icons.mic,
+                  color: muted ? Colors.white : Colors.blueAccent,
+                  size: 20.0,
+                ),
+                backgroundColor: Colors.white,
+              ),
             ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: muted ? Colors.redAccent : Colors.white,
-            padding: const EdgeInsets.all(12.0),
           ),
           RawMaterialButton(
             onPressed: () => _onCallEnd(context),
@@ -224,25 +241,30 @@ class _CallPageState extends State<CallPage> {
             shape: CircleBorder(),
             elevation: 2.0,
             fillColor: Colors.redAccent,
-            padding: const EdgeInsets.all(15.0),
-          ),
-          RawMaterialButton(
-            onPressed: _onSwitchCamera,
-            child: Icon(
-              Icons.switch_camera,
-              color: Colors.blueAccent,
-              size: 20.0,
-            ),
-            shape: CircleBorder(),
-            elevation: 2.0,
-            fillColor: Colors.white,
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.symmetric(vertical: 15.0),
           ),
           Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.only(right: 12.0),
             child: Container(
               height: 43,
               child: FloatingActionButton(
+                heroTag: 'btn3',
+                onPressed: _onSwitchCamera,
+                child: Icon(
+                  Icons.switch_camera,
+                  color: Colors.blueAccent,
+                  size: 20.0,
+                ),
+                backgroundColor: Colors.white,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 12.0),
+            child: Container(
+              height: 43,
+              child: FloatingActionButton(
+                heroTag: 'btn4',
                 onPressed: () {
                   //todo: place info page here
                 },
@@ -251,6 +273,7 @@ class _CallPageState extends State<CallPage> {
                   style: TextStyle(
                     color: Colors.blueAccent,
                     fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 backgroundColor: Colors.white,
@@ -265,7 +288,7 @@ class _CallPageState extends State<CallPage> {
   /// Info panel to show logs
   Widget _panel() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 48),
+      padding: const EdgeInsets.symmetric(vertical: 80),
       alignment: Alignment.bottomCenter,
       child: FractionallySizedBox(
         heightFactor: 0.5,
@@ -320,11 +343,11 @@ class _CallPageState extends State<CallPage> {
     setState(() {
       muted = !muted;
     });
-    _engine.muteLocalAudioStream(muted);
+    AgoraRtcEngine.muteLocalAudioStream(muted);
   }
 
   void _onSwitchCamera() {
-    _engine.switchCamera();
+    AgoraRtcEngine.switchCamera();
   }
 
   @override
@@ -341,5 +364,16 @@ class _CallPageState extends State<CallPage> {
         ),
       ),
     );
+  }
+}
+
+class VideoSession {
+  int uid;
+  Widget view;
+  int viewId;
+
+  VideoSession(int uid, Widget view) {
+    this.uid = uid;
+    this.view = view;
   }
 }
