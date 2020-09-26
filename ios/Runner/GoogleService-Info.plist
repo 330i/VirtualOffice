@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>695637343810-map28a548f4t60c2gni1jrpum879i2lr.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.695637343810-map28a548f4t60c2gni1jrpum879i2lr</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBvxOYKdwwTvU8_bUtdpzXe6LQjfO1-OhU</string>
+	<key>GCM_SENDER_ID</key>
+	<string>695637343810</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>org.crhsidea.virtualoffice</string>
+	<key>PROJECT_ID</key>
+	<string>virtualoffice-36d78</string>
+	<key>STORAGE_BUCKET</key>
+	<string>virtualoffice-36d78.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:695637343810:ios:9eea585dbae0cd2d92b7db</string>
+	<key>DATABASE_URL</key>
+	<string>https://virtualoffice-36d78.firebaseio.com</string>
+</dict>
+</plist>
