@@ -70,28 +70,6 @@ class _ProfilePageState extends State<ProfilePage> {
                               width: 140.0,
                               child: Material(
                                 borderRadius: BorderRadius.circular(20.0),
-                                shadowColor: Colors.indigoAccent,
-                                color: Colors.indigoAccent,
-                                elevation: 7.0,
-                                child: FlatButton(
-                                  onPressed: () {
-
-                                  },
-                                  child: Center(
-                                    child: Text(
-                                      'Friend Requests',
-                                      style: TextStyle(
-                                          color: Colors.white, fontFamily: 'Futura'),
-                                    ),
-                                  ),
-                                ),
-                              )),
-                          SizedBox(height: 25.0),
-                          Container(
-                              height: 30.0,
-                              width: 140.0,
-                              child: Material(
-                                borderRadius: BorderRadius.circular(20.0),
                                 shadowColor: Colors.greenAccent,
                                 color: Colors.green,
                                 elevation: 7.0,

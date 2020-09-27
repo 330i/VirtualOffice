@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
+import 'package:virtualoffice/screens/friend.dart';
 
 class CommunityPage extends StatefulWidget {
   @override
@@ -11,8 +12,11 @@ class CommunityPage extends StatefulWidget {
 
 class _CommunityPageState extends State<CommunityPage> {
 
-  String date = "09/25/2020";
-  String name = "Barry Macokiner";
+  @override
+  void initState() {
+    getHistory();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +39,7 @@ class _CommunityPageState extends State<CommunityPage> {
               ),
               _buildCalendar(),
               SizedBox(height: 20),
+              Text('')
             ],
           ),
         ],
@@ -76,7 +81,10 @@ class _CommunityPageState extends State<CommunityPage> {
             FlatButton(
               minWidth: 30,
               onPressed: () {
-
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => (FriendList())),
+                );
               },
               child: Icon(
                 Icons.chat_outlined,
@@ -92,13 +100,14 @@ class _CommunityPageState extends State<CommunityPage> {
   CalendarController _calendarController = new CalendarController();
   Map<DateTime, List<dynamic>> events = {};
 
-  Map<DateTime, List<dynamic>> getHistory() async{
+  getHistory() async{
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser.uid).collection('history').get();
     List<QueryDocumentSnapshot> snaps = querySnapshot.docs;
     for(int i=0;i<snaps.length;i++) {
-      events.addAll({snaps[i].data()['date']:snaps[i].data()['participantid']});
+      setState(() {
+        events.addAll({snaps[i].data()['date'].toDate():snaps[i].data()['participantid']});
+      });
     }
-    return events;
   }
 
   Widget _buildCalendar() {
@@ -114,7 +123,7 @@ class _CommunityPageState extends State<CommunityPage> {
         initialCalendarFormat: CalendarFormat.month,
         formatAnimation: FormatAnimation.slide,
         startingDayOfWeek: StartingDayOfWeek.sunday,
-        events: getHistory(),
+        events: events,
         availableGestures: AvailableGestures.horizontalSwipe,
         availableCalendarFormats: const {
           CalendarFormat.month: 'Month',

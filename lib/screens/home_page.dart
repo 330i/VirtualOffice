@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -99,11 +101,11 @@ class _HomePageState extends State<HomePage> {
               GestureDetector(
                 onTap: () async {
                   print('tap');
-                  String roomUID;
+                  QueryDocumentSnapshot roomUID;
                   QuerySnapshot roomSearch = await FirebaseFirestore.instance.collection('rooms').where('roomid').get();
-                  roomUID = roomSearch.docs.last.data()['roomid'];
+                  roomUID = roomSearch.docs.last;
                   if(meetingNumController.text.length>0&&roomUID!=null) {
-                    onJoinRoom(roomUID);
+                    onJoinRoom(roomUID.id, roomUID.data()['roomid']);
                   }
                   else {
                     showDialog(
@@ -135,13 +137,46 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
+              Container(
+                height: 10,
+              ),
+              GestureDetector(
+                onTap: () async {
+                  print('tap');
+                  QueryDocumentSnapshot roomUID;
+                  var rng = new Random();
+                  QuerySnapshot roomSearch = await FirebaseFirestore.instance.collection('rooms').get();
+                  roomUID = roomSearch.docs[rng.nextInt(roomSearch.docs.length)];
+                  onJoinRoom(roomUID.id, roomUID.data()['roomid']);
+                },
+                child: Container(
+                  height: 50,
+                  margin: EdgeInsets.symmetric(horizontal: 50),
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.black,
+                        width: 3.0,
+                      ),
+                      borderRadius: BorderRadius.circular(50),
+                      color: Colors.white),
+                  child: Center(
+                    child: Text(
+                      "Join Random",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
   }
-  Future<void> onJoinRoom(String roomID) async {
+  Future<void> onJoinRoom(String roomID, String roomName) async {
     String roomid = roomID;
     await FirebaseFirestore.instance
         .collection('rooms')
@@ -155,7 +190,7 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(
         builder: (context) => CallPage(
-          channelName: roomid,
+          channelName: roomName,
           role: ClientRole.Broadcaster,
           roomDocID: roomID,
         ),

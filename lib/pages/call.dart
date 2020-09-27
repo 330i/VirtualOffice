@@ -557,10 +557,52 @@ class _CallPageState extends State<CallPage> {
               Text('Random: ${streamDocs.data()['randomavailable']}', textAlign: TextAlign.center,),
               Container(height: 10,),
               Text('Start Time: ${(streamDocs.data()['startTime'] as Timestamp).toDate()}', textAlign: TextAlign.center,),
+              await addFriend(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Future<Widget> addFriend() async {
+    DocumentSnapshot streamDocs = await FirebaseFirestore.instance.collection('rooms').doc(widget.roomDocID).get();
+    CollectionReference participants = await FirebaseFirestore.instance.collection('users');
+    return ListView.builder(
+      itemCount: streamDocs.data()['participantid'].length,
+      itemBuilder: (context, int i) {
+        return Column(
+          children: [
+            Container(height: 10,),
+            Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(18),
+                    child: Container(
+                      decoration: new BoxDecoration(
+                          image: new DecorationImage(
+                            fit: BoxFit.fill,
+                            alignment: FractionalOffset.topCenter,
+                            image: NetworkImage(participants.doc().data()['url']),
+                          )
+                      ),
+                    ),
+                  ),
+                ),
+                Text(
+                  participants[i].data()['name'],
+                  style: TextStyle(
+                    fontSize: 30,
+                  ),
+                )
+              ],
+            )
+          ],
+        );
+      },
     );
   }
 
