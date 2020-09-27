@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:virtualoffice/themes/colors.dart';
+import 'calendar.dart';
 
 class CommunityPage extends StatefulWidget {
   @override
@@ -41,7 +42,9 @@ class _CommunityPageState extends State<CommunityPage> {
                 ),
               ),
               SizedBox(height: 5),
-              friendsList(name)
+              friendsList(name),
+              CalenderWidget()
+
           ]),
         ],
       ),
