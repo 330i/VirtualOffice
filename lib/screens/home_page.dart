@@ -1,7 +1,13 @@
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:virtualoffice/pages/call.dart';
 import 'package:virtualoffice/themes/colors.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:virtualoffice/screens/preference.dart';
+import 'package:virtualoffice/utils/style_constants.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -9,119 +15,157 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String meetingNum;
+  TextEditingController meetingNumController = new TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    return Container(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-            Container(
-                height: 100,
-                width: width,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          height: 40,
-                        ),
-                        Text(
-                          "Join or make a meeting",
-                          style: TextStyle(
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+        child: Container(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                Container(
+                  height: 100,
+                  width: width,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 40,
+                          ),
+                          Text(
+                            "Join a meeting",
+                            style: TextStyle(
                               fontSize: 26,
-                              color: Colors.white,
-                              fontStyle: FontStyle.italic),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-                decoration: new BoxDecoration(
-                  color: LightColors.kBlue,
-                  borderRadius: new BorderRadius.only(
-                      bottomLeft: const Radius.circular(60.0),
-                      bottomRight: const Radius.circular(60.0)),
-                )),
-            SizedBox(height: 150),
-            AvatarGlow(
-                endRadius: 75,
-                glowColor: Colors.green,
-                repeat: true,
-                repeatPauseDuration: Duration(seconds: 1),
-                startDelay: Duration(seconds: 1),
-                child: RaisedButton(
-                    elevation: 25.0,
-                    onPressed: () {},
-                    shape: CircleBorder(),
-                    child: CircleAvatar(
-                      backgroundColor: Colors.grey[300],
-                      child: FlutterLogo(
-                        size: 100.0,
-                      ),
-                      radius: 105,
-                    )),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 300,
-                child: TextFormField(
-                  maxLength: 5,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    icon: Icon(Icons.person),
-                    labelText: 'Please enter the meeting Id',
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
                   ),
-                  onSaved: (String value) {
-                    // This optional block of code can be used to run
-                    // code when the user saves the form.
-                  },
-                  validator: (String value) {
-                    return value.contains('@')
-                        ? 'Do not use the @ char.'
-                        : null;
-                  },
                 ),
+              ],
               ),
-            ],
-          ),
-          SizedBox(
-            height: 40,
-          ),
-          Column(
-            children: [
-              Container(
-                width: 300,
-                child: ButtonTheme(
+              SizedBox(height: 20),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(height: 40.0),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        decoration: StyleConstants.loginBoxDecorationStyle,
+                        height: 60.0,
+                        child: TextFormField(
+                          controller: meetingNumController,
+                          keyboardType: TextInputType.emailAddress,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontFamily: 'OpenSans',
+                          ),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(vertical: 14.0),
+                            prefixIcon: Icon(
+                              Icons.person,
+                              color: Colors.black,
+                            ),
+                            hintText: 'Room Name',
+                            hintStyle: StyleConstants.loginHintTextStyle,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 40,
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 20,
+              ),
+              GestureDetector(
+                onTap: () async {
+                  print('tap');
+                  String roomUID;
+                  QuerySnapshot roomSearch = await FirebaseFirestore.instance.collection('rooms').where('roomid').get();
+                  roomUID = roomSearch.docs.last.data()['roomid'];
+                  if(meetingNumController.text.length>0&&roomUID!=null) {
+                    onJoinRoom(roomUID);
+                  }
+                  else {
+                    showDialog(
+                      context: context,
+                      child: AlertDialog(
+                        title: Text('Room Cannot Be Found'),
+                      ),
+                    );
+                  }
+                },
+                child: Container(
                   height: 50,
-                  child: RaisedButton(
-                      color: Colors.lightBlue[100],
-                      onPressed: () {
-                        navigateToSubPage(context);
-                      },
-                      child: Text("Make a meeting"),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: new BorderRadius.circular(30.0),
-                      )),
+                  margin: EdgeInsets.symmetric(horizontal: 50),
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.black,
+                        width: 3.0,
+                      ),
+                      borderRadius: BorderRadius.circular(50),
+                      color: Colors.white),
+                  child: Center(
+                    child: Text(
+                      "Join Room",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
-          )
-        ],
+          ),
+        ),
       ),
     );
   }
-  Future navigateToSubPage(context) async {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => MyApp()));
+  Future<void> onJoinRoom(String roomID) async {
+    String roomid = roomID;
+    await FirebaseFirestore.instance
+        .collection('rooms')
+        .doc(roomID)
+        .set({
+      'participantid': FieldValue.arrayUnion([FirebaseAuth.instance.currentUser.uid.toString()]),
+    });
+    print(roomid);
+    _handleCameraAndMic();
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CallPage(
+          channelName: roomid,
+          role: ClientRole.Broadcaster,
+          roomDocID: roomID,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleCameraAndMic() async {
+    await PermissionHandler().requestPermissions(
+      [PermissionGroup.camera, PermissionGroup.microphone],
+    );
   }
 }

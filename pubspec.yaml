@@ -28,6 +28,15 @@ dependencies:
   permission_handler: ^3.0.0
   agora_rtc_engine: ^1.0.15
   flutter_tags: ^0.4.9
+  avatar_glow: ^1.2.0
+  shared_preferences: ^0.5.12
+  dynamic_theme: ^1.0.1
+  curved_navigation_bar: ^0.3.4
+  preferences: ^5.2.1
+  validators: ^2.0.1
+  firebase_storage: ^4.0.0
+  image_picker: ^0.6.7+11
+  persistent_bottom_nav_bar: ^2.0.5
 
   flutter:
     sdk: flutter

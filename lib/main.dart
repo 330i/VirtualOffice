@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:virtualoffice/pages/create_room.dart';
-import 'package:virtualoffice/widgets/signup_widget.dart';
+import 'package:virtualoffice/screens/sign_up.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 void main() {
@@ -30,7 +29,7 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             home: Scaffold(
-              body: CreateRoom(),
+              body: SignupScreen(),
             ),
           );
         }

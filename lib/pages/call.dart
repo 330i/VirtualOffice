@@ -1,7 +1,10 @@
 import 'dart:async';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:virtualoffice/widgets/bottom_bar.dart';
 
 import '../utils/settings.dart';
 
@@ -12,8 +15,10 @@ class CallPage extends StatefulWidget {
   /// non-modifiable client role of the page
   final ClientRole role;
 
+  final String roomDocID;
+
   /// Creates a call page with given channel name.
-  const CallPage({Key key, this.channelName, this.role}) : super(key: key);
+  const CallPage({Key key, this.channelName, this.role, this.roomDocID}) : super(key: key);
 
   @override
   _CallPageState createState() => _CallPageState();
@@ -32,7 +37,48 @@ class _CallPageState extends State<CallPage> {
     // destroy sdk
     AgoraRtcEngine.leaveChannel();
     AgoraRtcEngine.destroy();
+    
     super.dispose();
+  }
+  
+  Future<bool> exitCall() async {
+    bool pop = true;
+    showDialog(
+      context: context,
+      child: AlertDialog(
+        title: Text('Leave Meeting'),
+        content: Text('Are you sure you want to leave the office.'),
+        actions: [
+          FlatButton(
+            child: Text('No'),
+            onPressed: () {
+              pop = false;
+              Navigator.pop(context);
+            },
+          ),
+          FlatButton(
+            child: Text('Yes'),
+            onPressed: () async {
+              DocumentSnapshot doc = await FirebaseFirestore.instance.collection('rooms').doc(widget.roomDocID).get();
+              List users = await doc.data()['participantid'];
+              if(users.length>1) {
+                await FirebaseFirestore.instance.collection('rooms').doc(widget.roomDocID).set({
+                  'participantid': FieldValue.arrayRemove([FirebaseAuth.instance.currentUser.uid.toString()]),
+                }, SetOptions(merge: true));
+              }
+              else {
+                await FirebaseFirestore.instance.collection('rooms').doc(widget.roomDocID).delete();
+              }
+              Navigator.pushAndRemoveUntil(context,
+                  MaterialPageRoute(builder: (BuildContext context) => BottomBar()),
+                  ModalRoute.withName('/'));
+            },
+          ),
+        ],
+      ),
+    );
+
+    return pop;
   }
 
   @override
@@ -232,7 +278,7 @@ class _CallPageState extends State<CallPage> {
             ),
           ),
           RawMaterialButton(
-            onPressed: () => _onCallEnd(context),
+            onPressed: () => exitCall(),
             child: Icon(
               Icons.call_end,
               color: Colors.white,
@@ -335,10 +381,6 @@ class _CallPageState extends State<CallPage> {
     );
   }
 
-  void _onCallEnd(BuildContext context) {
-    Navigator.pop(context);
-  }
-
   void _onToggleMute() {
     setState(() {
       muted = !muted;
@@ -354,13 +396,16 @@ class _CallPageState extends State<CallPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Center(
-        child: Stack(
-          children: <Widget>[
-            _viewRows(),
-            _panel(),
-            _toolbar(),
-          ],
+      body: WillPopScope(
+        onWillPop: exitCall,
+        child: Center(
+          child: Stack(
+            children: <Widget>[
+              _viewRows(),
+              _panel(),
+              _toolbar(),
+            ],
+          ),
         ),
       ),
     );

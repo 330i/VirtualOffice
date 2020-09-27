@@ -2,6 +2,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:virtualoffice/screens/community_page.dart';
 import 'package:virtualoffice/screens/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:virtualoffice/screens/meeting_home.dart';
 import 'package:virtualoffice/themes/colors.dart';
 import 'package:virtualoffice/screens/profile_page.dart';
 
@@ -12,7 +13,7 @@ class BottomBar extends StatefulWidget {
 
 class _BottomBarState extends State<BottomBar> {
   int _currentIndex = 0;
-  final List<Widget> _children = [HomePage(), CommunityPage(), ProfilePage()];
+  final List<Widget> _children = [MeetingBar(), CommunityPage(), ProfilePage()];
 
   @override
   Widget build(BuildContext context) {
