@@ -35,7 +35,7 @@ class _CreateRoomState extends State<CreateRoom> {
   Widget build(BuildContext context) {
 
     bool empty = false;
-    List _tags = [];
+    print(_items.toString());
 
     return Scaffold(
       body: Padding(
@@ -158,7 +158,7 @@ class _CreateRoomState extends State<CreateRoom> {
                           child: FlatButton(
                             child: Container(
                               height: 50,
-                              child: _items.length>0 ?
+                              child: _items.isEmpty ?
                               Center(
                                 child: Text(
                                   'Add Category',
@@ -180,28 +180,21 @@ class _CreateRoomState extends State<CreateRoom> {
                                       key: Key(index.toString()),
                                       index: index, // required
                                       title: item,
-                                      textStyle: TextStyle( fontSize: 10, ),
+                                      textStyle: TextStyle( fontSize: 15, ),
                                       combine: ItemTagsCombine.withTextBefore,
-                                      removeButton: ItemTagsRemoveButton(
-                                        onRemoved: (){
-                                          // Remove the item from the data source.
-                                          setState(() {
-                                            // required
-                                            _items.removeAt(index);
-                                          });
-                                          //required
-                                          return true;
-                                        },
-                                      ), // OR null,
-                                      onPressed: (item) => print(item),
-                                      onLongPressed: (item) => print(item),
+                                      onPressed: (item) {
+                                        setState(() {
+                                          _items.removeAt(index);
+                                        });
+                                        return true;
+                                      },
                                     );
                                   },
                                 ),
                               ),
                             ),
                             onPressed: () {
-                              print(_tags.toString());
+                              print(_items.toString());
                               showDialog(
                                 context: context,
                                 barrierDismissible: false,
@@ -220,7 +213,7 @@ class _CreateRoomState extends State<CreateRoom> {
                                           itemCount: tagDoc.data()['tags'].length,
                                           itemBuilder: (context, i) {
                                             bool tagTrue = false;
-                                            if(_tags.contains(tagDoc.data()['tags'][i])) {
+                                            if(_items.contains(tagDoc.data()['tags'][i])) {
                                               tagTrue = true;
                                             }
                                             return Column(
@@ -233,13 +226,14 @@ class _CreateRoomState extends State<CreateRoom> {
                                                     value: tagTrue,
                                                     onChanged: (tagChange) {
                                                       setState(() {
-                                                        tagTrue = tagChange;
                                                         if(tagChange) {
-                                                          _tags.add(tagDoc.data()['tags'][i]);
+                                                          _items.add(tagDoc.data()['tags'][i]);
                                                         }
                                                         else if(!tagChange) {
-                                                          _tags.remove(tagDoc.data()['tags'][i]);
+                                                          _items.remove(tagDoc.data()['tags'][i]);
                                                         }
+                                                        tagTrue = tagChange;
+                                                        print(_items.toString());
                                                       });
                                                     },
                                                     title: Text(

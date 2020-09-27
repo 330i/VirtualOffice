@@ -253,7 +253,7 @@ class _CallPageState extends State<CallPage> {
                   //todo: place message stuff here
                 },
                 child: Icon(
-                  Icons.add_comment_rounded,
+                  Icons.chat,
                   color: Colors.blueAccent,
                   size: 20.0,
                 ),

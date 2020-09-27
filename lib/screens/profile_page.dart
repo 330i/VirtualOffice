@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:virtualoffice/screens/sign_up.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -63,14 +64,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Futura'),
                           ),
-                          SizedBox(height: 15.0),
-                          Text(
-                            'Running, Cooking, Programming',
-                            style: TextStyle(
-                                fontSize: 14.0,
-                                fontFamily: 'Futura',
-                                fontStyle: FontStyle.italic),
-                          ),
                           SizedBox(height: 25.0),
                           Container(
                               height: 30.0,
@@ -102,7 +95,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                 elevation: 7.0,
                                 child: FlatButton(
                                   onPressed: () {
-                                    debugPrint("Click");
+                                    FirebaseAuth.instance.signOut();
+                                    Navigator.pushAndRemoveUntil(context,
+                                        MaterialPageRoute(builder: (BuildContext context) => SignupScreen()),
+                                        ModalRoute.withName('/'));
                                   },
                                   child: Center(
                                     child: Text(

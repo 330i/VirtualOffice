@@ -42,42 +42,53 @@ class _CommunityPageState extends State<CommunityPage> {
               ),
               SizedBox(height: 5),
               friendsList(name)
-          ]),
+            ]
+          ),
         ],
       ),
     );
   }
 
-  Container topBar (double w) {
-    return Container(
-        height: 100,
+  Widget topBar (double w) {
+    return SafeArea(
+      child: Container(
+        height: 60,
         width: w,
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            Container(
+              width: 10,
+            ),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(
-                  height: 40,
-                ),
                 Text(
                   "Community Hub",
                   style: TextStyle(
-                      fontSize: 26,
-                      color: Colors.white,
-                      fontStyle: FontStyle.italic),
+                    fontSize: 26,
+                    color: Colors.black,
+                  ),
                 ),
               ],
-            )
+            ),
+            Spacer(
+              flex: 1,
+            ),
+            FlatButton(
+              minWidth: 30,
+              onPressed: () {
+
+              },
+              child: Icon(
+                Icons.chat_outlined,
+                size: 30,
+              ),
+            ),
           ],
         ),
-        decoration: new BoxDecoration(
-          color: LightColors.kBlue,
-          borderRadius: new BorderRadius.only(
-              bottomLeft: const Radius.circular(60.0),
-              bottomRight: const Radius.circular(60.0)),
-        ));
+      ),
+    );
   }
 
   Container meetingHistory(String date){
