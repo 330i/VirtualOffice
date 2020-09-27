@@ -21,8 +21,8 @@ class _ProfilePageState extends State<ProfilePage> {
       future: FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser.uid).get(),
       builder: (context, snapshot) {
         if(snapshot.data==null) {
-          return Scaffold(
-            body: Container(
+          return Center(
+            child: Container(
               height: 50,
               width: 50,
               child: CircularProgressIndicator(),
@@ -56,7 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   boxShadow: [
                                     BoxShadow(blurRadius: 7.0, color: Colors.black)
                                   ])),
-                          SizedBox(height: 90.0),
+                          SizedBox(height: 70.0),
                           Text(
                             doc.data()['name'],
                             style: TextStyle(
@@ -70,11 +70,35 @@ class _ProfilePageState extends State<ProfilePage> {
                               width: 140.0,
                               child: Material(
                                 borderRadius: BorderRadius.circular(20.0),
+                                shadowColor: Colors.indigoAccent,
+                                color: Colors.indigoAccent,
+                                elevation: 7.0,
+                                child: FlatButton(
+                                  onPressed: () {
+
+                                  },
+                                  child: Center(
+                                    child: Text(
+                                      'Friend Requests',
+                                      style: TextStyle(
+                                          color: Colors.white, fontFamily: 'Futura'),
+                                    ),
+                                  ),
+                                ),
+                              )),
+                          SizedBox(height: 25.0),
+                          Container(
+                              height: 30.0,
+                              width: 140.0,
+                              child: Material(
+                                borderRadius: BorderRadius.circular(20.0),
                                 shadowColor: Colors.greenAccent,
                                 color: Colors.green,
                                 elevation: 7.0,
                                 child: FlatButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+
+                                  },
                                   child: Center(
                                     child: Text(
                                       'Edit Your Profile',

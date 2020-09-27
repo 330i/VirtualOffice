@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:virtualoffice/widgets/bottom_bar.dart';
+import 'package:virtualoffice/widgets/receivedmessagewidget.dart';
 
 import '../utils/settings.dart';
 
@@ -29,6 +30,7 @@ class _CallPageState extends State<CallPage> {
   final _infoStrings = <String>[];
   bool muted = false;
   static final _sessions = List<VideoSession>();
+  TextEditingController textControl = new TextEditingController();
 
   @override
   void dispose() {
@@ -61,6 +63,14 @@ class _CallPageState extends State<CallPage> {
             onPressed: () async {
               DocumentSnapshot doc = await FirebaseFirestore.instance.collection('rooms').doc(widget.roomDocID).get();
               List users = await doc.data()['participantid'];
+              await FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(FirebaseAuth.instance.currentUser.uid.toString())
+                  .collection('history')
+                  .doc(DateTime.now().millisecondsSinceEpoch.toString()).set({
+                'date': DateTime.now(),
+                'participantid': users,
+              });
               if(users.length>1) {
                 await FirebaseFirestore.instance.collection('rooms').doc(widget.roomDocID).set({
                   'participantid': FieldValue.arrayRemove([FirebaseAuth.instance.currentUser.uid.toString()]),
@@ -250,7 +260,7 @@ class _CallPageState extends State<CallPage> {
               child: FloatingActionButton(
                 heroTag: 'btn1',
                 onPressed: () {
-                  //todo: place message stuff here
+                  _message();
                 },
                 child: Icon(
                   Icons.chat,
@@ -273,7 +283,7 @@ class _CallPageState extends State<CallPage> {
                   color: muted ? Colors.white : Colors.blueAccent,
                   size: 20.0,
                 ),
-                backgroundColor: Colors.white,
+                backgroundColor: muted ? Colors.red : Colors.white,
               ),
             ),
           ),
@@ -312,15 +322,12 @@ class _CallPageState extends State<CallPage> {
               child: FloatingActionButton(
                 heroTag: 'btn4',
                 onPressed: () {
-                  //todo: place info page here
+                  _onTapInfo();
                 },
-                child: Text(
-                  'i',
-                  style: TextStyle(
-                    color: Colors.blueAccent,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: Icon(
+                  Icons.settings,
+                  color: Colors.blueAccent,
+                  size: 20.0,
                 ),
                 backgroundColor: Colors.white,
               ),
@@ -330,6 +337,145 @@ class _CallPageState extends State<CallPage> {
       ),
     );
   }
+
+  void _message() {
+    showDialog(
+      context: context,
+      child: StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(
+                'Group Chat',
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+              ),
+              iconTheme: IconThemeData(
+                color: Colors.black,
+              ),
+              backgroundColor: Colors.white,
+            ),
+            body: Stack(
+              children: [
+                Column(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        child: StreamBuilder(
+                          stream: FirebaseFirestore.instance.collection('rooms').doc(widget.roomDocID).collection('chat').snapshots(),
+                          builder: (context, snapshot) {
+                            if(snapshot.data!=null) {
+                              QuerySnapshot snap = snapshot.data;
+                              return Scaffold(
+                                body: ListView.builder(
+                                  itemCount: snap.size,
+                                  reverse: true,
+                                  itemBuilder: (context, int i) {
+                                    DocumentSnapshot doc = snap.docs[snap.size-1-i];
+                                    return Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 10),
+                                      child: FutureBuilder(
+                                        future: FirebaseFirestore.instance.collection('users').doc(doc.data()['from']).get(),
+                                        builder: (context, snapUser) {
+                                          DocumentSnapshot user = snapUser.data;
+                                          if(snapUser.data!=null) {
+                                            return ReceivedMessagesWidget(
+                                              message: doc.data()['received'],
+                                              imageUrl: user.data()['url'],
+                                              name: user.data()['name'],
+                                            );
+                                          }
+                                          else {
+                                            return Center(
+                                              child: CircularProgressIndicator(),
+                                            );
+                                          }
+                                        },
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                            }
+                            else {
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                    Container(
+                      alignment: Alignment.bottomCenter,
+                      margin: EdgeInsets.all(15.0),
+                      height: 61,
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(35.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                      offset: Offset(0, 3),
+                                      blurRadius: 5,
+                                      color: Colors.grey)
+                                ],
+                              ),
+                              child: Row(
+                                children: <Widget>[
+                                  SizedBox(
+                                    width: 20,
+                                  ),
+                                  Expanded(
+                                    child: TextField(
+                                      controller: textControl,
+                                      decoration: InputDecoration(
+                                          hintText: "Text Message",
+                                          border: InputBorder.none),
+                                    ),
+                                  ),
+                                  IconButton(
+                                      icon: Icon(Icons.send),
+                                      onPressed: () {
+                                        sendMessage(textControl.text);
+                                      }),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 15),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Future sendMessage(String message) async {
+    print("SENDING MESSAGE");
+    textControl.clear();
+    await FirebaseFirestore.instance.collection('rooms').doc(widget.roomDocID).collection('chat').doc(DateTime.now().millisecondsSinceEpoch.toString()).set({
+      'from': FirebaseAuth.instance.currentUser.uid,
+      'received': message,
+    });
+    scrollController.animateTo(
+      scrollController.position.maxScrollExtent,
+      curve: Curves.easeOut,
+      duration: const Duration(milliseconds: 300),
+    );
+  }
+
+  ScrollController scrollController = ScrollController();
 
   /// Info panel to show logs
   Widget _panel() {
@@ -390,6 +536,32 @@ class _CallPageState extends State<CallPage> {
 
   void _onSwitchCamera() {
     AgoraRtcEngine.switchCamera();
+  }
+
+  void _onTapInfo() async {
+    DocumentSnapshot streamDocs = await FirebaseFirestore.instance.collection('rooms').doc(widget.roomDocID).get();
+    showDialog(
+      context: context,
+      child: AlertDialog(
+        title: Text('Room Information'),
+        content: Container(
+          height: 200,
+          child: Column(
+            children: [
+              Text('Server Name: ${streamDocs.data()['name']}', textAlign: TextAlign.center,),
+              Container(height: 10,),
+              Text('Join Code: ${streamDocs.data()['roomid']}', textAlign: TextAlign.center,),
+              Container(height: 10,),
+              Text('Private: ${streamDocs.data()['private']}', textAlign: TextAlign.center,),
+              Container(height: 10,),
+              Text('Random: ${streamDocs.data()['randomavailable']}', textAlign: TextAlign.center,),
+              Container(height: 10,),
+              Text('Start Time: ${(streamDocs.data()['startTime'] as Timestamp).toDate()}', textAlign: TextAlign.center,),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override

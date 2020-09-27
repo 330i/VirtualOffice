@@ -30,6 +30,7 @@ class _CreateRoomState extends State<CreateRoom> {
   }
 
   List _items = [];
+  List<bool> tagEnabled = [];
 
   @override
   Widget build(BuildContext context) {
@@ -38,271 +39,298 @@ class _CreateRoomState extends State<CreateRoom> {
     print(_items.toString());
 
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
-        child: SingleChildScrollView(
-          child: Container(
-              height: 500,
-              decoration: BoxDecoration(),
-              child: Form(
-                key: _signUpFormKey,
-                child: Column(
-                  children: <Widget>[
-                    Spacer(
-                      flex: 1,
-                    ),
-                    Text(
-                      'Create Room',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w400,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+          child: SingleChildScrollView(
+            child: Container(
+                height: 500,
+                decoration: BoxDecoration(),
+                child: Form(
+                  key: _signUpFormKey,
+                  child: Column(
+                    children: <Widget>[
+                      Spacer(
+                        flex: 1,
                       ),
-                    ),
-                    Column(
-                      children: <Widget>[
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            SizedBox(height: 40.0),
-                            Container(
-                              alignment: Alignment.centerLeft,
-                              decoration: StyleConstants.loginBoxDecorationStyle,
-                              height: 60.0,
-                              child: TextFormField(
-                                controller: _roomNameInputController,
-                                keyboardType: TextInputType.emailAddress,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontFamily: 'OpenSans',
-                                ),
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.only(top: 14.0),
-                                  prefixIcon: Icon(
-                                    Icons.person,
-                                    color: empty ? Colors.red : Colors.black,
-                                  ),
-                                  hintText: empty ? 'Please Input a Valid Name' : 'Room Name',
-                                  hintStyle: StyleConstants.loginHintTextStyle,
-                                ),
-                              ),
-                            ),
-                          ],
+                      Text(
+                        'Create Room',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w400,
                         ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            SizedBox(height: 20.0),
-                            Container(
-                              child: CheckboxListTile(
-                                controlAffinity: ListTileControlAffinity.leading,
-                                value: _isPrivate,
-                                onChanged: (private) {
-                                  setState(() {
-                                    _isPrivate = private;
-                                    private ? _isRandom = false : print('random will stay');
-                                  });
-                                  print('private:$private');
-                                  print('random:$_isRandom');
-                                },
-                                title: Text(
-                                  'Private',
-                                  style: TextStyle(
-                                      fontSize: 15
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Container(
-                              child: _isPrivate ?
-                              CheckboxListTile(
-                                controlAffinity: ListTileControlAffinity.leading,
-                                value: _isRandom,
-                                onChanged: null,
-                                title: Text(
-                                  'Random',
-                                  style: TextStyle(
-                                      fontSize: 15
-                                  ),
-                                ),
-                              ) :
-                              CheckboxListTile(
-                                controlAffinity: ListTileControlAffinity.leading,
-                                value: _isRandom,
-                                onChanged: (random) {
-                                  setState(() {
-                                    _isRandom = random;
-                                  });
-                                  print('random:$random');
-                                },
-                                title: Text(
-                                  'Random',
-                                  style: TextStyle(
-                                      fontSize: 15
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          width: MediaQuery.of(context).size.width,
-                          child: FlatButton(
-                            child: Container(
-                              height: 50,
-                              child: _items.isEmpty ?
-                              Center(
-                                child: Text(
-                                  'Add Category',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              ) :
+                      ),
+                      Column(
+                        children: <Widget>[
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              SizedBox(height: 40.0),
                               Container(
-                                child: Tags(
-                                  itemCount: _items.length, // required
-                                  itemBuilder: (int index){
-                                    final item = _items[index];
-
-                                    return ItemTags(
-                                      // Each ItemTags must contain a Key. Keys allow Flutter to
-                                      // uniquely identify widgets.
-                                      key: Key(index.toString()),
-                                      index: index, // required
-                                      title: item,
-                                      textStyle: TextStyle( fontSize: 15, ),
-                                      combine: ItemTagsCombine.withTextBefore,
-                                      onPressed: (item) {
-                                        setState(() {
-                                          _items.removeAt(index);
-                                        });
-                                        return true;
-                                      },
-                                    );
-                                  },
+                                alignment: Alignment.centerLeft,
+                                decoration: StyleConstants.loginBoxDecorationStyle,
+                                height: 60.0,
+                                child: TextFormField(
+                                  controller: _roomNameInputController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: 'OpenSans',
+                                  ),
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.only(top: 14.0),
+                                    prefixIcon: Icon(
+                                      Icons.person,
+                                      color: empty ? Colors.red : Colors.black,
+                                    ),
+                                    hintText: empty ? 'Please Input a Valid Name' : 'Room Name',
+                                    hintStyle: StyleConstants.loginHintTextStyle,
+                                  ),
                                 ),
                               ),
-                            ),
-                            onPressed: () {
-                              print(_items.toString());
-                              showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                child: AlertDialog(
-                                  content: FutureBuilder(
-                                    future: FirebaseFirestore.instance.collection('appresource').doc('tags').get(),
-                                    builder: (context, snapshot) {
-                                      if(snapshot.data==null) {
-                                        return Center(
-                                          child: CircularProgressIndicator(),
-                                        );
-                                      }
-                                      else {
-                                        DocumentSnapshot tagDoc = snapshot.data;
-                                        return ListView.builder(
-                                          itemCount: tagDoc.data()['tags'].length,
-                                          itemBuilder: (context, i) {
-                                            bool tagTrue = false;
-                                            if(_items.contains(tagDoc.data()['tags'][i])) {
-                                              tagTrue = true;
-                                            }
-                                            return Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: <Widget>[
-                                                Container(
-                                                  child: CheckboxListTile(
-                                                    controlAffinity: ListTileControlAffinity.leading,
-                                                    value: tagTrue,
-                                                    onChanged: (tagChange) {
-                                                      setState(() {
-                                                        if(tagChange) {
-                                                          _items.add(tagDoc.data()['tags'][i]);
-                                                        }
-                                                        else if(!tagChange) {
-                                                          _items.remove(tagDoc.data()['tags'][i]);
-                                                        }
-                                                        tagTrue = tagChange;
-                                                        print(_items.toString());
-                                                      });
-                                                    },
-                                                    title: Text(
-                                                      tagDoc.data()['tags'][i],
-                                                      style: TextStyle(
-                                                          fontSize: 15
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        );
-                                      }
-                                    },
-                                  ),
-                                  actions: [
-                                    FlatButton(
-                                      child: Text('Ok'),
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height / 20,
-                    ),
-                    GestureDetector(
-                      onTap: () async {
-                        print('tap');
-                        if(_roomNameInputController.text.length>0) {
-                          onJoin();
-                        }
-                      },
-                      child: Container(
-                        height: 50,
-                        margin: EdgeInsets.symmetric(horizontal: 50),
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.black,
-                              width: 3.0,
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              SizedBox(height: 20.0),
+                              Container(
+                                child: CheckboxListTile(
+                                  controlAffinity: ListTileControlAffinity.leading,
+                                  value: _isPrivate,
+                                  onChanged: (private) {
+                                    setState(() {
+                                      _isPrivate = private;
+                                      private ? _isRandom = false : print('random will stay');
+                                    });
+                                    print('private:$private');
+                                    print('random:$_isRandom');
+                                  },
+                                  title: Text(
+                                    'Private',
+                                    style: TextStyle(
+                                        fontSize: 15
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Container(
+                                child: _isPrivate ?
+                                CheckboxListTile(
+                                  controlAffinity: ListTileControlAffinity.leading,
+                                  value: _isRandom,
+                                  onChanged: null,
+                                  title: Text(
+                                    'Random',
+                                    style: TextStyle(
+                                        fontSize: 15
+                                    ),
+                                  ),
+                                ) :
+                                CheckboxListTile(
+                                  controlAffinity: ListTileControlAffinity.leading,
+                                  value: _isRandom,
+                                  onChanged: (random) {
+                                    setState(() {
+                                      _isRandom = random;
+                                    });
+                                    print('random:$random');
+                                  },
+                                  title: Text(
+                                    'Random',
+                                    style: TextStyle(
+                                        fontSize: 15
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Wrap(
+                            children: [
+                              Container(
+                                child: Container(
+                                  child: Wrap(
+                                    children: [
+                                      Tags(
+                                        itemCount: _items.length, // required
+                                        itemBuilder: (int index){
+                                          return ItemTags(
+                                            key: Key(index.toString()),
+                                            index: index, // required
+                                            title: _items[index],
+                                            textStyle: TextStyle( fontSize: 15, ),
+                                            combine: ItemTagsCombine.withTextBefore,
+                                            removeButton: ItemTagsRemoveButton(
+                                              onRemoved: (){
+                                                // Remove the item from the data source.
+                                                setState(() {
+                                                  // required
+                                                  _items.removeAt(index);
+                                                  tagEnabled.removeAt(index);
+                                                });
+                                                //required
+                                                return true;
+                                              },
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            height: 15,
+                          ),
+                          Container(
+                            height: 40,
+                            width: 200,
+                            child: RaisedButton(
+                              child: Text(
+                                'Add Category',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15
+                                ),
+                              ),
+                              color: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              onPressed: () {
+                                print(_items.toString());
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  child: AlertDialog(
+                                    content: Container(
+                                      height: 450,
+                                      child: FutureBuilder(
+                                        future: FirebaseFirestore.instance.collection('appresource').doc('tags').get(),
+                                        builder: (context, snapshot) {
+                                          if(snapshot.data==null) {
+                                            return Center(
+                                              child: CircularProgressIndicator(),
+                                            );
+                                          }
+                                          else {
+                                            DocumentSnapshot tagDoc = snapshot.data;
+                                            List tag = tagDoc.data()['tags'];
+                                            for(int i=0;i<tag.length;i++) {
+                                              tagEnabled.add(false);
+                                            }
+                                            return StatefulBuilder(
+                                              builder: (BuildContext context, StateSetter setState) {
+                                                return ListView.builder(
+                                                  itemCount: tag.length,
+                                                  itemBuilder: (context, i) {
+                                                    if(_items.contains(tag[i])) {
+                                                      tagEnabled[i] = true;
+                                                    }
+                                                    return Column(
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: <Widget>[
+                                                        Container(
+                                                          child: CheckboxListTile(
+                                                            controlAffinity: ListTileControlAffinity.leading,
+                                                            value: tagEnabled[i],
+                                                            onChanged: (tagChange) {
+                                                              setState(() {
+                                                                if(tagChange) {
+                                                                  _items.add(tag[i]);
+                                                                }
+                                                                else if(!tagChange) {
+                                                                  _items.remove(tag[i]);
+                                                                }
+                                                                tagEnabled[i] = tagChange;
+                                                                print(_items.toString());
+                                                              });
+                                                            },
+                                                            title: Text(
+                                                              tag[i],
+                                                              style: TextStyle(
+                                                                  fontSize: 15
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                            );
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                    actions: [
+                                      FlatButton(
+                                        child: Text('Ok'),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          setState(() {
+                                            _items = _items;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
                             ),
-                            borderRadius: BorderRadius.circular(50),
-                            color: Colors.white),
-                        child: Center(
-                          child: Text(
-                            "Create Room",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height / 30,
+                      ),
+                      GestureDetector(
+                        onTap: () async {
+                          print('tap');
+                          if(_roomNameInputController.text.length>0) {
+                            onJoin();
+                          }
+                        },
+                        child: Container(
+                          height: 50,
+                          margin: EdgeInsets.symmetric(horizontal: 50),
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.black,
+                                width: 3.0,
+                              ),
+                              borderRadius: BorderRadius.circular(50),
+                              color: Colors.white),
+                          child: Center(
+                            child: Text(
+                              "Create Room",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    Spacer(
-                      flex: 2,
-                    ),
-                  ],
-                ),
-              )
+                      Spacer(
+                        flex: 2,
+                      ),
+                    ],
+                  ),
+                )
+            ),
           ),
         ),
       ),
@@ -331,6 +359,7 @@ class _CreateRoomState extends State<CreateRoom> {
       'randomavailable': _isRandom,
       'participantid': [FirebaseAuth.instance.currentUser.uid],
       'startTime': DateTime.now(),
+      'category': _items,
     });
     print(roomid);
     _handleCameraAndMic();

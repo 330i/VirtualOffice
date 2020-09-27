@@ -28,7 +28,7 @@ class _MeetingBarState extends State<MeetingBar> {
                 Column(
                   children: [
                     Container(
-                      height: 10,
+                      height: 12,
                     ),
                     Text(
                       "Join",
@@ -39,14 +39,14 @@ class _MeetingBarState extends State<MeetingBar> {
                       ),
                     ),
                     Container(
-                      height: 10,
+                      height: 8,
                     ),
                   ],
                 ),
                 Column(
                   children: [
                     Container(
-                      height: 10,
+                      height: 12,
                     ),
                     Text(
                       "Create",
@@ -57,7 +57,7 @@ class _MeetingBarState extends State<MeetingBar> {
                       ),
                     ),
                     Container(
-                      height: 10,
+                      height: 8,
                     ),
                   ],
                 ),
